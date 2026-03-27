@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  signal-copilot-p1:
+    build: .
+    container_name: signal-copilot-phase1
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MOCK_MODE=${MOCK_MODE:-true}
+      - PORT=3000
+      - DB_MIN_THRESHOLD=${DB_MIN_THRESHOLD:--40}
+      - DB_MAX_THRESHOLD=${DB_MAX_THRESHOLD:--10}
+      - WPM_MIN_THRESHOLD=${WPM_MIN_THRESHOLD:-100}
+      - WPM_MAX_THRESHOLD=${WPM_MAX_THRESHOLD:-180}
+      # Uncomment and set these for live Azure mode:
+      # - AZURE_SPEECH_KEY=your_key_here
+      # - AZURE_SPEECH_REGION=eastus
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped

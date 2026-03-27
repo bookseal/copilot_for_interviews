@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY src/ ./src/
+
+EXPOSE 3000
+
+ENV PORT=3000 \
+    NODE_ENV=production \
+    MOCK_MODE=true
+
+CMD ["node", "src/server.js"]
