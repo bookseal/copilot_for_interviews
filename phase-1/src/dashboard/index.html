@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>copilot_for_interviews – Interview Assistant</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --muted: #8b949e;
+      --green: #3fb950; --yellow: #d29922; --orange: #db6d28; --red: #f85149; --blue: #58a6ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+    header {
+      padding: 14px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    header h1 { font-size: 1.05rem; font-weight: 600; }
+    header h1 span { color: var(--blue); }
+    #status-badge {
+      padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      background: var(--surface); border: 1px solid var(--border);
+    }
+    #status-badge.ok { border-color: var(--green); color: var(--green); }
+    #status-badge.warning { border-color: var(--yellow); color: var(--yellow); }
+    #status-badge.disconnected { border-color: var(--red); color: var(--red); }
+
+    main { padding: 20px 24px; display: grid; gap: 16px; max-width: 1200px; margin: 0 auto; }
+
+    /* Controls */
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .controls input {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      border-radius: 6px; padding: 8px 12px; font-size: 0.9rem; flex: 1; min-width: 200px;
+    }
+    .btn {
+      padding: 8px 18px; border-radius: 6px; border: none; font-size: 0.88rem;
+      font-weight: 600; cursor: pointer; transition: opacity .15s; white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.82; }
+    .btn-primary { background: var(--blue);   color: #000; }
+    .btn-danger  { background: var(--red);    color: #fff; }
+    .btn-green   { background: var(--green);  color: #000; }
+    .btn-orange  { background: var(--orange); color: #fff; }
+
+    /* Mode bar */
+    .mode-bar {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    }
+    .mode-bar > span { color: var(--muted); font-size: 0.82rem; }
+    .toggle-group { display: flex; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+    .toggle-btn {
+      padding: 5px 14px; border: none; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; background: var(--surface); color: var(--muted); transition: all .15s;
+    }
+    .toggle-btn.active { background: var(--blue); color: #000; }
+    #mic-indicator {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--muted);
+      display: inline-block; flex-shrink: 0;
+    }
+    #mic-indicator.live { background: var(--red); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+    /* Metric cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px;
+    }
+    .card .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing:.05em; margin-bottom:6px; }
+    .card .value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .card .unit  { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+    .card.ok   .value { color: var(--green); }
+    .card.warn .value { color: var(--yellow); }
+    .card.crit .value { color: var(--red); }
+
+    /* Answer Timer card */
+    #card-timer { position: relative; }
+    #timer-bar {
+      position: absolute; bottom: 0; left: 0; height: 4px; border-radius: 0 0 10px 10px;
+      width: 0%; transition: width .5s linear, background .5s;
+      background: var(--green);
+    }
+
+    /* Charts */
+    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width:700px) { .charts { grid-template-columns: 1fr; } }
+    .chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+    .chart-box h3 { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+
+    /* Alerts */
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+    .panel h3 { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+    #alerts-list { display: flex; flex-direction: column; gap: 8px; min-height: 36px; }
+    .alert-item {
+      padding: 9px 13px; border-radius: 6px; font-size: 0.86rem;
+      background: #1a1a2e; border-left: 3px solid var(--yellow); color: var(--yellow);
+    }
+    .alert-item.VOLUME_LOW, .alert-item.PACE_SLOW { border-color: var(--blue); color: var(--blue); }
+    .alert-item.VOLUME_HIGH, .alert-item.PACE_FAST { border-color: var(--red); color: var(--red); }
+    .no-alerts { color: var(--green); font-size: 0.86rem; }
+
+    /* Transcript live panel */
+    #transcript-live {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 12px; min-height: 80px; max-height: 160px; overflow-y: auto;
+      font-size: 0.88rem; line-height: 1.6; color: var(--text);
+      white-space: pre-wrap; word-break: break-word;
+    }
+    #transcript-live .chunk-new { color: var(--blue); }
+
+    /* Manual transcript input */
+    #transcript-input {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      border-radius: 6px; padding: 10px 14px; font-size: 0.88rem; resize: vertical;
+      width: 100%; min-height: 70px; font-family: inherit;
+    }
+
+    /* Finish button row */
+    .finish-row {
+      display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+    }
+
+    /* Report card */
+    #report-section { display: none; }
+    #report-section.visible { display: block; }
+    .report-header {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .score-circle {
+      width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 800; border: 3px solid var(--border);
+    }
+    .score-circle.good  { border-color: var(--green); color: var(--green); }
+    .score-circle.ok    { border-color: var(--yellow); color: var(--yellow); }
+    .score-circle.poor  { border-color: var(--red);  color: var(--red); }
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .report-item {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+    }
+    .report-item .ri-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
+    .report-item .ri-value { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+    .ri-value.good { color: var(--green); } .ri-value.warn { color: var(--yellow); } .ri-value.bad { color: var(--red); }
+    .star-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+    .star-part {
+      padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600;
+      background: var(--surface);
+    }
+    .star-part.hit  { border-left: 3px solid var(--green); color: var(--green); }
+    .star-part.miss { border-left: 3px solid var(--muted); color: var(--muted); }
+    .suggestions-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .suggestions-list li {
+      padding: 10px 14px; background: var(--bg); border: 1px solid var(--border);
+      border-left: 3px solid var(--blue); border-radius: 6px; font-size: 0.86rem;
+    }
+    .transcript-full {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 12px; max-height: 200px; overflow-y: auto;
+      font-size: 0.86rem; line-height: 1.7; color: var(--muted);
+    }
+    small { color: var(--muted); font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🎙️ copilot_for_interviews — <span>Interview Assistant</span></h1>
+  <span id="status-badge" class="disconnected">Disconnected</span>
+</header>
+
+<main>
+  <!-- Session Controls -->
+  <div class="controls">
+    <input id="session-id-input" type="text" placeholder="Session ID (예: interview_001)" />
+    <button class="btn btn-primary" onclick="connect()">Connect</button>
+    <button class="btn btn-danger"  onclick="disconnect()">Disconnect</button>
+  </div>
+
+  <!-- Mode bar -->
+  <div class="mode-bar">
+    <span id="mic-indicator"></span>
+    <span>입력 모드:</span>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="btn-mode-live" onclick="setMode('live')">🎙️ Live Mic</button>
+      <button class="toggle-btn active" id="btn-mode-mock" onclick="setMode('mock')">🔵 Mock</button>
+    </div>
+    <span style="margin-left:4px;color:var(--muted);font-size:0.82rem;">언어:</span>
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="btn-lang-ko" onclick="setLang('ko-KR')">🇰🇷 한국어</button>
+      <button class="toggle-btn" id="btn-lang-en" onclick="setLang('en-US')">🇺🇸 English</button>
+    </div>
+    <span id="mode-hint" style="margin-left:6px;color:var(--muted);font-size:0.8rem;">마이크 없이 시뮬레이션 중</span>
+  </div>
+
+  <!-- Metric Cards (including timer) -->
+  <div class="cards">
+    <div class="card" id="card-db">
+      <div class="label">Volume (dB)</div>
+      <div class="value" id="val-db">–</div>
+      <div class="unit">정상 범위: -40 ~ -10 dB</div>
+    </div>
+    <div class="card" id="card-wpm">
+      <div class="label">Pace (WPM)</div>
+      <div class="value" id="val-wpm">–</div>
+      <div class="unit">목표: 100 – 180 WPM</div>
+    </div>
+    <div class="card" id="card-words">
+      <div class="label">Total Words</div>
+      <div class="value" id="val-words">0</div>
+      <div class="unit">이번 세션</div>
+    </div>
+    <div class="card" id="card-timer">
+      <div class="label">⏱️ Answer Timer</div>
+      <div class="value" id="val-timer">0:00</div>
+      <div class="unit" id="timer-hint">대기 중 (말하면 자동 시작)</div>
+      <div id="timer-bar"></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts">
+    <div class="chart-box">
+      <h3>Volume over time (dB)</h3>
+      <canvas id="chart-db" height="120"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Speaking pace (WPM)</h3>
+      <canvas id="chart-wpm" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="panel" id="alerts-box">
+    <h3>⚠️ Live Alerts</h3>
+    <div id="alerts-list"><span class="no-alerts">✓ 이상 없음</span></div>
+  </div>
+
+  <!-- Live Transcript -->
+  <div class="panel">
+    <h3>📝 실시간 자막 <small style="margin-left:8px;">(Live Mic 모드에서 자동 기록)</small></h3>
+    <div id="transcript-live">대화를 시작하면 자막이 여기에 실시간으로 표시됩니다…</div>
+  </div>
+
+  <!-- Manual Input + Finish -->
+  <div class="panel">
+    <h3 style="margin-bottom:10px;">✏️ 수동 입력 <small>(마이크 없이 테스트용)</small></h3>
+    <textarea id="transcript-input" placeholder="발화 내용을 붙여넣거나 직접 입력하세요…"></textarea>
+    <div class="finish-row" style="margin-top:10px;">
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-green" onclick="sendTranscript()">제출</button>
+        <small style="align-self:center;">WPM이 즉시 업데이트됩니다.</small>
+      </div>
+      <button class="btn btn-orange" onclick="finishInterview()">🏁 Finish Interview &amp; Get Feedback</button>
+    </div>
+  </div>
+
+  <!-- Report Section (hidden until finish) -->
+  <div id="report-section" class="panel">
+    <div class="report-header">
+      <div class="score-circle" id="score-circle">–</div>
+      <div>
+        <h2 style="font-size:1.1rem;margin-bottom:4px;">면접 피드백 리포트</h2>
+        <p id="report-summary-line" style="color:var(--muted);font-size:0.88rem;"></p>
+      </div>
+    </div>
+    <div class="report-grid" id="report-grid"></div>
+    <div style="margin-bottom:14px;">
+      <h3 style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">💡 개선 제안</h3>
+      <ul class="suggestions-list" id="report-suggestions"></ul>
+    </div>
+    <div>
+      <h3 style="font-size:0.82rem;color:var(--muted);margin-bottom:8px;">📄 전체 자막</h3>
+      <div class="transcript-full" id="report-transcript"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // ── State ────────────────────────────────────────────────────────────
+  const MAX_POINTS = 60;
+  let ws = null;
+  let currentSessionId = null;
+  let currentMode = 'mock';
+  let currentLang = 'ko-KR'; // default Korean
+
+  // Live mic
+  let audioCtx = null, micStream = null, analyserNode = null;
+  let dbPollTimer = null, recognition = null;
+  let sessionStart = null;
+
+  // WebSocket auto-reconnect
+  let wsReconnectTimer = null;
+  let wsConnected = false;
+
+  // Answer timer
+  let answerTimerStart = null;
+  let answerTimerRunning = false;
+  let silenceTimer = null;
+  let timerInterval = null;
+  const SILENCE_PAUSE_MS = 3000;
+  const TIMER_MAX_SEC = 120; // 2 min = full bar
+
+  // ── Language toggle ──────────────────────────────────────────────────
+  function setLang(lang) {
+    currentLang = lang;
+    document.getElementById('btn-lang-ko').classList.toggle('active', lang === 'ko-KR');
+    document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en-US');
+    // Restart recognition if live mic is running
+    if (currentMode === 'live' && recognition) {
+      try { recognition.stop(); } catch {}
+      // onend handler will restart with new lang
+    }
+  }
+
+  // ── Charts ───────────────────────────────────────────────────────────
+  const makeChart = (id, label, color, yMin, yMax) => new Chart(
+    document.getElementById(id), {
+      type: 'line',
+      data: { labels: [], datasets: [{ label, data: [], borderColor: color,
+        backgroundColor: color + '22', fill: true, tension: 0.35, pointRadius: 0, borderWidth: 2 }] },
+      options: {
+        animation: false, responsive: true,
+        scales: {
+          x: { display: false },
+          y: { min: yMin, max: yMax, ticks: { color: '#8b949e' }, grid: { color: '#30363d' } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    }
+  );
+  const dbChart  = makeChart('chart-db',  'dB',  '#58a6ff', -60, 0);
+  const wpmChart = makeChart('chart-wpm', 'WPM', '#3fb950', 0, 250);
+
+  function pushPoint(chart, value) {
+    const now = new Date().toLocaleTimeString('ko', { hour12: false });
+    chart.data.labels.push(now);
+    chart.data.datasets[0].data.push(value);
+    if (chart.data.labels.length > MAX_POINTS) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
+    chart.update();
+  }
+
+  // ── Answer Timer ─────────────────────────────────────────────────────
+  function startAnswerTimer() {
+    if (answerTimerRunning) return;
+    answerTimerRunning = true;
+    answerTimerStart = answerTimerStart ?? Date.now();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tickTimer, 200);
+  }
+
+  function pauseAnswerTimer() {
+    if (!answerTimerRunning) return;
+    answerTimerRunning = false;
+    clearInterval(timerInterval);
+  }
+
+  function resetAnswerTimer() {
+    pauseAnswerTimer();
+    answerTimerStart = null;
+    document.getElementById('val-timer').textContent = '0:00';
+    document.getElementById('timer-hint').textContent = '대기 중 (말하면 자동 시작)';
+    const bar = document.getElementById('timer-bar');
+    bar.style.width = '0%'; bar.style.background = 'var(--green)';
+    document.getElementById('card-timer').className = 'card';
+  }
+
+  function tickTimer() {
+    if (!answerTimerStart) return;
+    const elapsed = (Date.now() - answerTimerStart) / 1000;
+    const m = Math.floor(elapsed / 60);
+    const s = Math.floor(elapsed % 60);
+    document.getElementById('val-timer').textContent = `${m}:${String(s).padStart(2,'0')}`;
+
+    const pct = Math.min(100, (elapsed / TIMER_MAX_SEC) * 100);
+    const bar = document.getElementById('timer-bar');
+    bar.style.width = pct + '%';
+
+    const card = document.getElementById('card-timer');
+    const hint = document.getElementById('timer-hint');
+    if (elapsed < 30) {
+      bar.style.background = 'var(--green)'; card.className = 'card ok'; hint.textContent = '적절한 길이 👍';
+    } else if (elapsed < 60) {
+      bar.style.background = 'var(--yellow)'; card.className = 'card warn'; hint.textContent = '1분 이내 마무리 추천';
+    } else if (elapsed < 120) {
+      bar.style.background = 'var(--orange)'; card.className = 'card warn'; hint.textContent = '⚠️ 답변이 길어지고 있습니다';
+    } else {
+      bar.style.background = 'var(--red)'; card.className = 'card crit'; hint.textContent = '🛑 2분 초과 — 핵심 정리 필요!';
+    }
+  }
+
+  // dB threshold for speech detection + VAD for Whisper early flush
+  function onDbUpdate(db) {
+    if (db > -45) {
+      // Speech detected
+      clearTimeout(silenceTimer);
+      silenceTimer = null;
+      startAnswerTimer();
+      if (!isSpeaking) { isSpeaking = true; onVadSpeech(); }
+    } else {
+      // Silence
+      if (isSpeaking) { isSpeaking = false; onVadSilence(); }
+      if (!silenceTimer && answerTimerRunning) {
+        silenceTimer = setTimeout(() => {
+          pauseAnswerTimer();
+          silenceTimer = null;
+        }, SILENCE_PAUSE_MS);
+      }
+    }
+  }
+
+  // ── Mode toggle ──────────────────────────────────────────────────────
+  function setMode(mode) {
+    if (mode === 'live') {
+      // Always restart live mic (resets timer/transcript even if already live)
+      currentMode = 'live';
+      document.getElementById('btn-mode-live').classList.add('active');
+      document.getElementById('btn-mode-mock').classList.remove('active');
+      stopLiveMic(); // stop any existing stream first
+      document.getElementById('mode-hint').textContent = '마이크 권한을 허용해주세요';
+      startLiveMic();
+    } else {
+      if (currentMode === mode) return;
+      currentMode = 'mock';
+      document.getElementById('btn-mode-live').classList.remove('active');
+      document.getElementById('btn-mode-mock').classList.add('active');
+      document.getElementById('mode-hint').textContent = '마이크 없이 시뮬레이션 중';
+      stopLiveMic();
+    }
+  }
+
+  // ── Live mic ─────────────────────────────────────────────────────────
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let chunkTimer = null;
+  let vadSilenceTimer = null;
+  let isSpeaking = false;
+  const CHUNK_MAX_MS  = 2000;  // hard max: send every 2s even if still speaking
+  const VAD_SILENCE_MS = 600;  // send 600ms after speech stops (near-real-time)
+
+  async function startLiveMic() {
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    } catch (e) {
+      alert('마이크 권한이 필요합니다.\n' + e.message);
+      setMode('mock'); return;
+    }
+    document.getElementById('mode-hint').textContent = '🎙️ 마이크 활성 — 실시간 측정 중';
+    document.getElementById('mic-indicator').classList.add('live');
+
+    // Full reset on every mic-on
+    sessionStart = Date.now();
+    liveTranscriptFull = '';
+    document.getElementById('transcript-live').textContent = '대화를 시작하면 자막이 여기에 표시됩니다…';
+    resetAnswerTimer();
+
+    // ── dB polling via Web Audio API ────────────────────────────────
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaStreamSource(micStream);
+    analyserNode = audioCtx.createAnalyser();
+    analyserNode.fftSize = 2048;
+    source.connect(analyserNode);
+
+    dbPollTimer = setInterval(() => {
+      if (!analyserNode) return;
+      const buf = new Float32Array(analyserNode.fftSize);
+      analyserNode.getFloatTimeDomainData(buf);
+      const rms = Math.sqrt(buf.reduce((s, v) => s + v * v, 0) / buf.length);
+      const db = rms > 0 ? Math.max(-60, Math.min(0, 20 * Math.log10(rms))) : -60;
+      updateLiveDb(db);
+      onDbUpdate(db);
+    }, 100);
+
+    // ── Whisper STT via MediaRecorder ────────────────────────────────
+    startMediaRecorder();
+    document.getElementById('mode-hint').textContent = '🎙️ 마이크 + Whisper 음성인식 활성';
+  }
+
+  function startMediaRecorder() {
+    if (!micStream) return;
+    audioChunks = [];
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus' : 'audio/webm';
+    mediaRecorder = new MediaRecorder(micStream, { mimeType });
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      clearTimeout(chunkTimer); chunkTimer = null;
+      clearTimeout(vadSilenceTimer); vadSilenceTimer = null;
+      if (audioChunks.length === 0 || currentMode !== 'live') return;
+      const blob = new Blob(audioChunks, { type: mimeType });
+      audioChunks = [];
+      if (blob.size > 1000) {
+        // Show "인식 중..." indicator immediately while Whisper processes
+        showInterim('🔄 인식 중…');
+        await sendAudioChunk(blob);
+      }
+      // Restart recorder for next chunk
+      if (currentMode === 'live' && micStream) startMediaRecorder();
+    };
+    mediaRecorder.start();
+    // Hard max: force send after CHUNK_MAX_MS even if VAD hasn't triggered
+    chunkTimer = setTimeout(() => flushChunk(), CHUNK_MAX_MS);
+  }
+
+  function flushChunk() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+  }
+
+  // Called from onDbUpdate — triggers early flush when speech stops
+  function onVadSilence() {
+    clearTimeout(vadSilenceTimer);
+    vadSilenceTimer = setTimeout(() => {
+      if (audioChunks.length > 0) flushChunk();
+    }, VAD_SILENCE_MS);
+  }
+
+  function onVadSpeech() {
+    clearTimeout(vadSilenceTimer);
+    vadSilenceTimer = null;
+  }
+
+  function stopLiveMic() {
+    clearInterval(dbPollTimer); dbPollTimer = null;
+    clearTimeout(chunkTimer); chunkTimer = null;
+    clearTimeout(vadSilenceTimer); vadSilenceTimer = null;
+    isSpeaking = false;
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      try { mediaRecorder.stop(); } catch {}
+    }
+    mediaRecorder = null; audioChunks = [];
+    // Also stop Web Speech API fallback if any
+    if (recognition) { try { recognition.stop(); } catch {} recognition = null; }
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+    analyserNode = null;
+    document.getElementById('mic-indicator').classList.remove('live');
+  }
+
+  async function sendAudioChunk(blob) {
+    if (!currentSessionId) return;
+    try {
+      const arrayBuf = await blob.arrayBuffer();
+      const resp = await fetch(`/api/sessions/${currentSessionId}/transcribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'audio/webm', 'X-Lang': currentLang },
+        body: arrayBuf,
+      });
+      if (!resp.ok) { showInterim(''); return; }
+      const { text } = await resp.json();
+      showInterim('');
+      if (text && text.trim()) {
+        updateLiveTranscript(text.trim(), '');
+        await sendLiveTranscript(text.trim());
+      }
+    } catch (e) {
+      showInterim('');
+      console.warn('[Whisper chunk]', e.message);
+    }
+  }
+
+  function showInterim(msg) {
+    const box = document.getElementById('transcript-live');
+    // Update or remove interim span
+    const existing = box.querySelector('.interim-status');
+    if (msg) {
+      if (existing) { existing.textContent = msg; }
+      else {
+        const span = document.createElement('span');
+        span.className = 'interim-status chunk-new';
+        span.textContent = msg;
+        box.appendChild(span);
+      }
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+
+  let liveTranscriptFull = '';
+  function updateLiveTranscript(finalText, interimText) {
+    if (finalText) liveTranscriptFull += (liveTranscriptFull ? ' ' : '') + finalText;
+    const box = document.getElementById('transcript-live');
+    box.innerHTML = liveTranscriptFull
+      + (interimText ? ` <span class="chunk-new">${interimText}</span>` : '');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function updateLiveDb(db) {
+    if (!currentSessionId) return;
+    setCard('card-db', 'val-db', db.toFixed(1), db < -40 || db > -10 ? 'warn' : 'ok');
+    pushPoint(dbChart, db);
+    updateLiveAlerts(db, 0);
+  }
+
+  async function sendLiveTranscript(text) {
+    if (!currentSessionId) return;
+    const resp = await fetch(`/api/metrics/${currentSessionId}/transcript`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    }).catch(() => null);
+    if (!resp) return;
+    const { snapshot } = await resp.json();
+    setCard('card-wpm', 'val-wpm', snapshot.wpm > 0 ? snapshot.wpm : '–', wpmStatus(snapshot.wpm));
+    pushPoint(wpmChart, snapshot.wpm);
+    document.getElementById('val-words').textContent = snapshot.totalWords;
+  }
+
+  function updateLiveAlerts(db, wpm) {
+    const alerts = [];
+    if (db < -40) alerts.push({ type: 'VOLUME_LOW', message: '목소리가 너무 작습니다 (mumbling)' });
+    if (db > -10) alerts.push({ type: 'VOLUME_HIGH', message: '목소리가 너무 큽니다' });
+    if (wpm > 0 && wpm < 100) alerts.push({ type: 'PACE_SLOW', message: '말이 너무 느립니다' });
+    if (wpm > 180) alerts.push({ type: 'PACE_FAST', message: '말이 너무 빠릅니다 (rushing)' });
+    const status = alerts.length ? 'WARNING' : 'OK';
+    setBadge(status === 'OK' ? 'ok' : 'warning', status === 'OK' ? 'OK' : `${alerts.length} Alert${alerts.length>1?'s':''}`);
+    const list = document.getElementById('alerts-list');
+    list.innerHTML = alerts.length
+      ? alerts.map(a => `<div class="alert-item ${a.type}">⚠️ <strong>${a.type}</strong>: ${a.message}</div>`).join('')
+      : '<span class="no-alerts">✓ 이상 없음</span>';
+  }
+
+  // ── WebSocket (Mock) ─────────────────────────────────────────────────
+  function connect() {
+    const id = document.getElementById('session-id-input').value.trim() || `session_${Date.now()}`;
+    currentSessionId = id; sessionStart = null; // reset — starts when mic turns on
+    document.getElementById('session-id-input').value = id;
+    liveTranscriptFull = '';
+    document.getElementById('transcript-live').textContent = '대화를 시작하면 자막이 여기에 표시됩니다…';
+    resetAnswerTimer();
+    openWS(id);
+  }
+
+  function openWS(id) {
+    if (ws) { try { ws.close(); } catch {} ws = null; }
+    clearTimeout(wsReconnectTimer);
+
+    const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(`${wsProto}://${location.host}/ws?sessionId=${encodeURIComponent(id)}`);
+    ws.onopen = () => {
+      wsConnected = true;
+      setBadge('ok', 'Live');
+      clearTimeout(wsReconnectTimer);
+    };
+    ws.onclose = () => {
+      wsConnected = false;
+      setBadge('disconnected', 'Reconnecting…');
+      // Auto-reconnect after 2s
+      wsReconnectTimer = setTimeout(() => {
+        if (currentSessionId) openWS(currentSessionId);
+      }, 2000);
+    };
+    ws.onerror = () => { ws.close(); };
+    ws.onmessage = ({ data }) => {
+      if (currentMode === 'mock') { try { handleTelemetry(JSON.parse(data)); } catch {} }
+    };
+  }
+
+  function disconnect() {
+    clearTimeout(wsReconnectTimer);
+    stopLiveMic(); pauseAnswerTimer();
+    if (ws) { ws.onclose = null; ws.close(); ws = null; }
+    wsConnected = false;
+    setBadge('disconnected', 'Disconnected');
+  }
+
+  function handleTelemetry({ snapshot }) {
+    if (!snapshot) return;
+    const { db, wpm, totalWords, sessionDurationMs, alerts, status } = snapshot;
+    setCard('card-db',  'val-db',  db  !== null ? db.toFixed(1) : '–', dbStatus(db));
+    setCard('card-wpm', 'val-wpm', wpm > 0 ? wpm : '–', wpmStatus(wpm));
+    document.getElementById('val-words').textContent = totalWords;
+    if (db !== null) { pushPoint(dbChart, db); onDbUpdate(db); }
+    if (wpm > 0) pushPoint(wpmChart, wpm);
+    setBadge(status === 'OK' ? 'ok' : 'warning', status === 'OK' ? 'OK' : `${alerts.length} Alert${alerts.length>1?'s':''}`);
+    const list = document.getElementById('alerts-list');
+    list.innerHTML = alerts.length === 0
+      ? '<span class="no-alerts">✓ 이상 없음</span>'
+      : alerts.map(a => `<div class="alert-item ${a.type}">⚠️ <strong>${a.type}</strong>: ${a.message}</div>`).join('');
+  }
+
+  async function sendTranscript() {
+    if (!currentSessionId) { alert('먼저 Connect 해주세요.'); return; }
+    const text = document.getElementById('transcript-input').value.trim();
+    if (!text) return;
+    const resp = await fetch(`/api/metrics/${currentSessionId}/transcript`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text })
+    });
+    const { snapshot } = await resp.json();
+    handleTelemetry({ snapshot });
+    // Also show in live transcript panel
+    liveTranscriptFull += (liveTranscriptFull ? ' ' : '') + text;
+    const box = document.getElementById('transcript-live');
+    box.textContent = liveTranscriptFull;
+    box.scrollTop = box.scrollHeight;
+    document.getElementById('transcript-input').value = '';
+  }
+
+  // ── Finish & Report ──────────────────────────────────────────────────
+  async function finishInterview() {
+    if (!currentSessionId) { alert('먼저 Connect 해주세요.'); return; }
+    pauseAnswerTimer();
+    stopLiveMic();
+
+    const btn = document.querySelector('.btn-orange');
+    btn.textContent = '분석 중…'; btn.disabled = true;
+
+    try {
+      const resp = await fetch(`/api/sessions/${currentSessionId}/summarize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionStartMs: sessionStart ?? Date.now() })
+      });
+      const { report } = await resp.json();
+      renderReport(report);
+    } catch (e) {
+      alert('리포트 생성 중 오류: ' + e.message);
+    } finally {
+      btn.textContent = '🏁 Finish Interview & Get Feedback'; btn.disabled = false;
+    }
+  }
+
+  function renderReport(r) {
+    const section = document.getElementById('report-section');
+    section.classList.add('visible');
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Score circle
+    const circle = document.getElementById('score-circle');
+    circle.textContent = r.score;
+    circle.className = 'score-circle ' + (r.score >= 75 ? 'good' : r.score >= 50 ? 'ok' : 'poor');
+
+    // Summary line
+    const dur = r.summary.durationSec;
+    document.getElementById('report-summary-line').textContent =
+      `총 ${r.summary.totalWords}단어 · ${Math.floor(dur/60)}분 ${dur%60}초 · 평균 ${r.summary.avgWpm} WPM — ${r.summary.label}`;
+
+    // Report grid
+    const grid = document.getElementById('report-grid');
+    grid.innerHTML = `
+      ${reportItem('⚡ 말하기 속도', `평균 ${r.pace.avg} WPM`, r.pace.label, r.pace.status === 'good' ? 'good' : 'warn')}
+      ${reportItem('🔊 볼륨', r.volume.avg !== null ? `평균 ${r.volume.avg} dB` : '데이터 없음', r.volume.label + (r.volume.stability ? ' · ' + r.volume.stability : ''), r.volume.status === 'good' ? 'good' : 'warn')}
+      ${reportFillers(r.fillerWords)}
+      ${reportSTAR(r.star)}
+      ${r.repeatedWords.length > 0 ? reportItem('🔁 반복 단어', r.repeatedWords.map(w=>`"${w.word}" ×${w.count}`).join(', '), '자주 반복되는 표현', 'warn') : ''}
+    `;
+
+    // Suggestions
+    const sug = document.getElementById('report-suggestions');
+    sug.innerHTML = r.suggestions.map(s => `<li>💡 ${s}</li>`).join('');
+
+    // Full transcript
+    document.getElementById('report-transcript').textContent = r.transcript || '(자막 없음)';
+  }
+
+  function reportItem(title, value, sub, cls) {
+    return `<div class="report-item">
+      <div class="ri-label">${title}</div>
+      <div class="ri-value ${cls}">${value}</div>
+      <div style="font-size:0.8rem;color:var(--muted)">${sub}</div>
+    </div>`;
+  }
+  function reportFillers(f) {
+    const top = Object.entries(f.breakdown).sort(([,a],[,b])=>b-a).slice(0,4).map(([w,c])=>`"${w}" ×${c}`).join(', ');
+    return `<div class="report-item">
+      <div class="ri-label">🎤 필러워드</div>
+      <div class="ri-value ${f.status === 'good' ? 'good' : f.status === 'warning' ? 'warn' : 'bad'}">${f.total}회 (${f.ratio}%)</div>
+      <div style="font-size:0.8rem;color:var(--muted)">${top || '감지 없음'}</div>
+    </div>`;
+  }
+  function reportSTAR(s) {
+    const parts = Object.entries(s.parts).map(([name, hit]) =>
+      `<div class="star-part ${hit ? 'hit' : 'miss'}">${hit ? '✅' : '❌'} ${name}</div>`
+    ).join('');
+    return `<div class="report-item">
+      <div class="ri-label">⭐ STAR 구조 (${s.completeness}/4)</div>
+      <div class="ri-value ${s.status === 'complete' ? 'good' : s.status === 'good' ? 'good' : 'warn'}">${s.label} (${s.percentage}%)</div>
+      <div class="star-grid">${parts}</div>
+    </div>`;
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function setBadge(cls, text) {
+    const el = document.getElementById('status-badge');
+    el.className = cls; el.textContent = text;
+  }
+  function setCard(cardId, valId, val, cls) {
+    document.getElementById(cardId).className = 'card' + (cls ? ' ' + cls : '');
+    document.getElementById(valId).textContent = val;
+  }
+  function dbStatus(db) { if (db === null) return ''; return (db < -40 || db > -10) ? 'warn' : 'ok'; }
+  function wpmStatus(wpm) { if (!wpm) return ''; return (wpm < 100 || wpm > 180) ? 'warn' : 'ok'; }
+
+  window.addEventListener('load', () => {
+    document.getElementById('session-id-input').value = 'demo_session';
+    connect();
+  });
+</script>
+</body>
+</html>
