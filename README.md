@@ -25,6 +25,30 @@ This project was developed from **zero to production** during a hackathon using 
 
 ### 💡 Development Highlights
 
+```mermaid
+graph LR
+    A[🎓 GitHub Pro<br/>Student Pack] --> B[🤖 Copilot CLI]
+    C[☁️ Azure<br/>Free Trial<br/>$200] --> B
+    B --> D[⚡ Zero → Deploy<br/>1 Day]
+    
+    B --> E[🏗️ Infrastructure<br/>Terraform + k8s]
+    B --> F[💻 Full Stack<br/>Node.js + HTML]
+    B --> G[🐳 Docker<br/>Containerized]
+    
+    E --> H[🚀 Production<br/>Ready]
+    F --> H
+    G --> H
+    
+    style A fill:#7CB342,stroke:#558B2F,stroke-width:3px,color:#fff
+    style C fill:#0078D4,stroke:#005A9E,stroke-width:3px,color:#fff
+    style B fill:#FF6B6B,stroke:#C92A2A,stroke-width:4px,color:#fff
+    style D fill:#FFA94D,stroke:#E8590C,stroke-width:3px,color:#fff
+    style E fill:#748FFC,stroke:#4C6EF5,stroke-width:2px,color:#fff
+    style F fill:#748FFC,stroke:#4C6EF5,stroke-width:2px,color:#fff
+    style G fill:#748FFC,stroke:#4C6EF5,stroke-width:2px,color:#fff
+    style H fill:#51CF66,stroke:#2F9E44,stroke-width:4px,color:#fff
+```
+
 **🎓 Microsoft Ecosystem Hackathon**
 - **GitHub Pro via Student Pack** — Free access to premium AI models (Claude Sonnet 4.5, GPT-5 mini unlimited)
 - **Azure Free Trial** — $200 free credit for cloud infrastructure and services
