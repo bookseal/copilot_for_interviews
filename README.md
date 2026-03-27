@@ -97,6 +97,30 @@ flowchart LR
 - **Lightweight Orchestration:** Implementing k3s on Azure to ensure the system is portable and edge-capable.
 - **Copilot CLI Workflow:** Automating infrastructure-as-code (IaC) to minimize human error in cloud provisioning.
 
+#### 🎨 Interactive Mockup Dashboard
+
+Experience the Phase 1 prototype with our **Gradio-based mockup dashboard**:
+
+📂 **[View Phase 1 Mockup Documentation](phase1_mockup/MOCKUP_README.md)**
+
+**Key Features:**
+- Real-time dB Level & WPM monitoring with mock data
+- 5-second persistent alert system
+- High-contrast dark mode UI optimized for visibility
+- Interactive Plotly time-series charts
+- Auto-refresh dashboard (2-second intervals)
+
+**Quick Start:**
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Launch dashboard
+python3 phase1_mockup/mockup.py
+```
+
+Access at: http://localhost:7860
+
 ---
 
 ### Phase 2: Cognitive Architecture
@@ -236,6 +260,34 @@ This share link expires in 72 hours.
 | `ModuleNotFoundError: No module named 'gradio'` | Run `pip install gradio` |
 | Port 7860 already in use | Kill existing process: `lsof -ti:7860 \| xargs kill -9` |
 | Gradio version mismatch | Upgrade: `pip install --upgrade gradio>=4.0.0` |
+
+---
+
+## 🧠 Development Powered by GitHub Copilot CLI
+
+This entire project was developed during a hackathon using **GitHub Copilot CLI** as the primary development accelerator.
+
+### Why Copilot CLI for Hackathons?
+
+**Strengths:**
+- **🤖 Claude Sonnet 4.5 Access:** Enterprise-grade AI reasoning available for rapid prototyping
+- **💰 Cost-Effective:** GitHub Pro (via Student Pack) provides virtually unlimited access to GPT-5 mini for experimentation
+- **⚡ End-to-End Workflow:** Seamlessly handled Azure CLI → Terraform → k3s deployment without friction
+- **🎯 Familiar UX:** Standard shortcuts (`Shift+Tab`, `/init`, `/compact`, `/exit`) enable immediate productivity
+
+**Real-World Validation:**
+During this hackathon, we deployed the entire Azure infrastructure, provisioned k3s clusters, and integrated AI services—all orchestrated through Copilot CLI. The 70% TTM reduction metric in our architecture isn't marketing; it's our lived experience.
+
+**One Challenge:**
+Occasionally, long-running background tasks (agents, builds) appear idle without visible progress indicators. Workaround: Check active processes with `list_agents` or `list_bash` commands.
+
+### The Hackathon Philosophy
+
+This project embodies the future of AI-augmented development:
+- **Human Architects + AI Executors** = Exponential velocity
+- **GitHub Copilot CLI** isn't just a tool—it's the meta-layer of how modern software gets built
+
+When your interview coaching system is itself built by AI coaching developers, you've closed the loop. 🚀
 
 ---
 
