@@ -82,7 +82,7 @@ wss.on('connection', (ws, req) => {
 
 // ── Start ────────────────────────────────────────────────────────────────
 server.listen(PORT, () => {
-  console.log(`\n🎙️  Signal Copilot – Phase 1 (Audio Telemetry)`);
+  console.log(`\n🎙️  copilot_for_interviews – Phase 1 (Audio Telemetry)`);
   console.log(`   Server  : http://localhost:${PORT}`);
   console.log(`   Dashboard: http://localhost:${PORT}/index.html`);
   console.log(`   WS      : ws://localhost:${PORT}/ws?sessionId=<id>`);

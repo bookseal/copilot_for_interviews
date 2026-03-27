@@ -2,7 +2,7 @@
 
 <a id="english"></a>
 
-# 🎙️ Signal Copilot
+# 🎙️ copilot_for_interviews
 
 **An AI-powered interview coach that listens to you in real time.**
 
@@ -21,7 +21,7 @@ Track your voice, get live feedback, and review your answers — all in your bro
 
 ## What it does
 
-Signal Copilot helps you practice for technical interviews by giving you real-time feedback on **how** you speak, not just what you say.
+copilot_for_interviews helps you practice for technical interviews by giving you real-time feedback on **how** you speak, not just what you say.
 
 - 🎤 **Live mic** — monitors your volume (dB) and speaking pace (WPM) as you talk
 - 📝 **Auto subtitles** — transcribes your Korean or English speech using OpenAI Whisper (near real-time)
@@ -202,17 +202,89 @@ npm test   # 40 tests (unit + integration)
 
 ---
 
+## Team
+
+| Name | Role | Affiliation |
+|---|---|---|
+| **Jungmin Hong** | AI Platform Engineer | Upstage — AI Infrastructure, LLM Ops |
+| **Gichan Lee** | Solution Architect | Bithabit — System Design, Optimization |
+
+---
+
+## System Architecture
+
+```mermaid
+graph TD
+    subgraph "Browser"
+        A[🎤 Microphone] --> B[Web Audio API\ndB every 100ms]
+        A --> C[MediaRecorder\naudio chunks]
+    end
+
+    subgraph "Node.js Server"
+        D[Express REST API]
+        E[WebSocket Server]
+        F[feedbackAnalyzer.js\nrule-based · no API cost]
+    end
+
+    subgraph "External AI"
+        G[OpenAI Whisper API\nwhisper-1 · ko / en]
+    end
+
+    B -->|dB value| E
+    C -->|POST /transcribe| D
+    D --> G
+    G -->|transcript text| D
+    D --> F
+    E -->|push dB · WPM · alerts| B
+    F -->|score · suggestions| H[📋 Feedback Report]
+
+    style G fill:#412991,color:#fff
+    style F fill:#238636,color:#fff
+    style E fill:#1f6feb,color:#fff
+```
+
+---
+
 ## Roadmap
 
-- ✅ **Phase 1** — Real-time audio telemetry + Whisper STT + feedback report
-- 🔜 **Phase 2** — STAR validator with GPT-4 + live coaching suggestions
-- 📋 **Phase 3** — Multi-persona AI interviewer simulator
+```mermaid
+timeline
+    title copilot_for_interviews Evolution
+    section Phase 1 · Signal Foundation (Mar 2026)
+        Real-time dB & WPM monitoring
+        OpenAI Whisper STT in Korean & English
+        Rule-based feedback report
+    section Phase 2 · Cognitive Intelligence (Apr 2026)
+        STAR Method Logic Validator via GPT-4
+        Sentiment & Tone Alignment
+        Live coaching suggestions
+    section Phase 3 · Global Mastery (May 2026)
+        Multi-persona AI Interviewer Simulator
+        Haptic bio-feedback on smartwatches
+        Enterprise HR Training Module
+```
+
+---
+
+## Development Powered by GitHub Copilot CLI
+
+This project was built during a hackathon using **GitHub Copilot CLI** as the primary development accelerator.
+
+**What Copilot CLI did:**
+- Generated the full project boilerplate — Express server, WebSocket, REST API, 40 tests — from a single prompt
+- Debugged tricky issues: `ws://` blocked on ngrok HTTPS, Korean regex `\b` boundary failures
+- Advised on architecture decisions: Web Speech API vs Whisper tradeoffs, VAD-based latency reduction
+
+**The result:** From idea to working prototype with live mic, Whisper STT, real-time charts, and AI feedback — in one session.
+
+> *Powered by **OpenAI Whisper** | Developed with **GitHub Copilot CLI** | Built by **Jungmin & Gichan***
 
 ---
 
 ## Built by
 
-**Jungmin Hong** — AI Platform Engineer
+**Jungmin Hong** — AI Platform Engineer  
+**Gichan Lee** — Solution Architect
 
 ---
 
@@ -222,7 +294,7 @@ npm test   # 40 tests (unit + integration)
 
 <a id="korean"></a>
 
-# 🎙️ Signal Copilot 한국어
+# 🎙️ copilot_for_interviews 한국어
 
 **실시간으로 당신의 목소리를 듣고 피드백을 주는 AI 면접 코치.**
 
@@ -241,7 +313,7 @@ npm test   # 40 tests (unit + integration)
 
 ## 무엇을 하나요?
 
-Signal Copilot은 기술 면접 연습을 도와주는 도구입니다. **무슨 말을 하는지**가 아니라 **어떻게 말하는지**에 집중합니다.
+copilot_for_interviews은 기술 면접 연습을 도와주는 도구입니다. **무슨 말을 하는지**가 아니라 **어떻게 말하는지**에 집중합니다.
 
 - 🎤 **라이브 마이크** — 말하는 동안 실시간으로 음량(dB)과 말 속도(WPM)를 측정
 - 📝 **자동 자막** — OpenAI Whisper로 한국어/영어 음성을 실시간 텍스트로 변환
@@ -419,14 +491,86 @@ npm test   # 40개 테스트 실행
 
 ---
 
+## 팀 소개
+
+| 이름 | 역할 | 소속 |
+|---|---|---|
+| **홍정민 (Jungmin Hong)** | AI Platform Engineer | Upstage — AI 인프라, LLM Ops |
+| **이기찬 (Gichan Lee)** | Solution Architect | Bithabit — 시스템 설계, 최적화 |
+
+---
+
+## 시스템 아키텍처
+
+```mermaid
+graph TD
+    subgraph "브라우저"
+        A[🎤 마이크] --> B[Web Audio API\n100ms마다 dB 측정]
+        A --> C[MediaRecorder\n오디오 청크 녹음]
+    end
+
+    subgraph "Node.js 서버"
+        D[Express REST API]
+        E[WebSocket 서버]
+        F[feedbackAnalyzer.js\n규칙 기반 · 추가 비용 없음]
+    end
+
+    subgraph "외부 AI"
+        G[OpenAI Whisper API\nwhisper-1 · 한국어 / 영어]
+    end
+
+    B -->|dB 값| E
+    C -->|POST /transcribe| D
+    D --> G
+    G -->|텍스트 반환| D
+    D --> F
+    E -->|dB · WPM · 알림 푸시| B
+    F -->|점수 · 제안| H[📋 피드백 리포트]
+
+    style G fill:#412991,color:#fff
+    style F fill:#238636,color:#fff
+    style E fill:#1f6feb,color:#fff
+```
+
+---
+
 ## 로드맵
 
-- ✅ **Phase 1** — 실시간 음성 텔레메트리 + Whisper 자막 + 피드백 리포트
-- 🔜 **Phase 2** — GPT-4 기반 STAR 구조 검증 + 실시간 코칭 제안
-- 📋 **Phase 3** — AI 면접관 시뮬레이터 (공격형 / 협력형 / 기술형 페르소나)
+```mermaid
+timeline
+    title copilot_for_interviews 발전 계획
+    section Phase 1 · Signal Foundation (2026년 3월)
+        실시간 dB & WPM 모니터링
+        OpenAI Whisper 한국어·영어 자막
+        규칙 기반 피드백 리포트
+    section Phase 2 · Cognitive Intelligence (2026년 4월)
+        GPT-4 기반 STAR 구조 검증
+        감정 & 톤 분석
+        실시간 코칭 제안
+    section Phase 3 · Global Mastery (2026년 5월)
+        멀티 페르소나 AI 면접관 시뮬레이터
+        스마트워치 햅틱 바이오피드백
+        기업 HR 트레이닝 모듈
+```
+
+---
+
+## GitHub Copilot CLI로 개발했습니다
+
+이 프로젝트는 해커톤에서 **GitHub Copilot CLI**를 주요 개발 가속 도구로 활용해 만들었습니다.
+
+**Copilot CLI가 한 일:**
+- 프롬프트 하나로 전체 보일러플레이트 생성 — Express 서버, WebSocket, REST API, 테스트 40개
+- 까다로운 버그 즉시 해결: ngrok HTTPS에서 `ws://` 차단 문제, 한국어 정규식 `\b` 경계 오류
+- 아키텍처 결정 조언: Web Speech API vs Whisper 트레이드오프, VAD 기반 지연 감소
+
+**결과:** 아이디어에서 라이브 마이크 + Whisper 자막 + 실시간 차트 + AI 피드백까지 — 한 세션 만에 완성.
+
+> *OpenAI Whisper 기반 | **GitHub Copilot CLI**로 개발 | **Jungmin & Gichan** 제작*
 
 ---
 
 ## 만든 사람
 
-**홍정민 (Jungmin Hong)** — AI Platform Engineer
+**홍정민 (Jungmin Hong)** — AI Platform Engineer  
+**이기찬 (Gichan Lee)** — Solution Architect
