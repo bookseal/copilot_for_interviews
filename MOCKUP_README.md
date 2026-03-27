@@ -4,24 +4,36 @@
 
 This is an interactive mockup dashboard for **Phase 1: Signal Foundation** of the Signal Copilot for Interviews project. It demonstrates real-time audio telemetry monitoring with mock data.
 
+## 📸 Screenshot
+
+![Signal Copilot Mockup Dashboard](mockup-screenshot.png)
+
+*Real-time audio telemetry dashboard with 1-column layout, persistent alerts, and high-contrast dark mode.*
+
 ## Features
 
 ### ✅ Implemented in This Mockup
 
 - **Real-time dB Level Monitoring** (40-80 dB range)
 - **Real-time WPM (Words Per Minute) Tracking** (120-180 WPM range)
-- **Signal Status Alerts** - Visual feedback when metrics are outside optimal ranges
+- **5-Second Persistent Alerts** - Warnings persist for 5 seconds even after values normalize
+- **1-Column Vertical Layout** - Optimized for better visibility and focus
 - **Interactive Time-Series Charts** - Plotly-powered visualizations
-- **Dark Mode UI** - Default dark theme with large, readable fonts
+- **High-Contrast Dark Mode UI** - Improved text visibility with bright accent colors
 - **MS/GitHub/Azure Branding** - Branded header showcasing technology stack
 
 ### 🎨 UI/UX Highlights
 
 - **Large Text:** 18px+ body text, 32px+ headings, 64px metrics display
-- **Dark Theme:** #1a1a1a background with high-contrast text
-- **Azure/GitHub Colors:** #0078D4 (Azure blue), #2ea043 (GitHub green)
+- **High-Contrast Dark Theme:** #1a1a1a background with #ffffff text
+- **Bright Accent Colors:** #3399ff (Azure blue), #3fca5f (GitHub green) for better visibility
 - **Real-time Updates:** Dashboard refreshes every 2 seconds
-- **Smart Alerts:** Visual warnings for "too quiet", "too loud", "too fast", "too slow"
+- **Persistent Smart Alerts:** 
+  - 🔇 **Too Quiet** (<50 dB) - persists for 5 seconds
+  - 📢 **Too Loud** (>75 dB) - persists for 5 seconds
+  - ⚡ **Too Fast** (>180 WPM) - persists for 5 seconds
+  - 🐌 **Too Slow** (<130 WPM) - persists for 5 seconds
+- **Single Column Layout:** All metrics and charts stacked vertically for clear viewing
 
 ## Requirements
 
