@@ -19,6 +19,41 @@ Track your voice, get live feedback, and review your answers — all in your bro
 
 ---
 
+## 🚀 Built Entirely with GitHub Copilot CLI
+
+This project was developed from **zero to production** during a hackathon using **GitHub Copilot CLI** as the primary development accelerator.
+
+### 💡 Development Highlights
+
+**🎓 Completely Free Development Stack**
+- **GitHub Pro via Student Pack** — Free access to premium AI models (Claude Sonnet 4.5, GPT-5 mini unlimited)
+- **Azure for Students** — $100 free credit for cloud infrastructure
+- **OpenAI Free Tier** — Sufficient for prototyping and testing
+- **Total Cost: $0** ✨
+
+**⚡ End-to-End Copilot CLI Automation**
+- **Azure Account Setup → Deployment** — All Azure CLI commands generated and executed via Copilot CLI
+- **Infrastructure as Code** — Terraform configurations automated through conversational prompts
+- **Full Stack Development** — Frontend, backend, Docker, k8s configs all built with AI assistance
+- **Infrastructure Repository:** [bookseal/azure_infra](https://github.com/bookseal/azure_infra)
+
+**🏗️ Technology Philosophy**
+- **Human Architects + AI Executors = Exponential Velocity**
+- Traditional timeline: 2-3 weeks → Actual timeline: 1 hackathon day
+- When your interview coaching system is built by AI coaching developers, you've closed the loop 🎯
+
+### 🎯 Why This Service is Different
+
+| Traditional Interview Prep | copilot_for_interviews |
+|---|---|
+| Record → Upload → Wait for analysis | **Real-time feedback as you speak** |
+| Focus only on content | **Voice dynamics (dB, WPM) + Content** |
+| English-only tools | **Korean & English native support** |
+| Expensive coaching services | **Free & open-source** |
+| Post-session review only | **Live alerts during practice** |
+
+---
+
 ## What it does
 
 copilot_for_interviews helps you practice for technical interviews by giving you real-time feedback on **how** you speak, not just what you say.
