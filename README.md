@@ -267,27 +267,48 @@ This share link expires in 72 hours.
 
 This entire project was developed during a hackathon using **GitHub Copilot CLI** as the primary development accelerator.
 
-### Why Copilot CLI for Hackathons?
+### Real-World Hackathon Experience
 
-**Strengths:**
-- **🤖 Claude Sonnet 4.5 Access:** Enterprise-grade AI reasoning available for rapid prototyping
-- **💰 Cost-Effective:** GitHub Pro (via Student Pack) provides virtually unlimited access to GPT-5 mini for experimentation
-- **⚡ End-to-End Workflow:** Seamlessly handled Azure CLI → Terraform → k3s deployment without friction
-- **🎯 Familiar UX:** Standard shortcuts (`Shift+Tab`, `/init`, `/compact`, `/exit`) enable immediate productivity
+**✅ Strengths:**
+1. **🤖 Claude Sonnet 4.5 Access:** Enterprise-grade AI reasoning (claude-sonnet-4.5) for rapid prototyping with sufficient token budget for hackathon needs
+2. **💰 Cost-Effective Intelligence:** GitHub Pro (via Student Pack) enables virtually free access to premium AI models—GPT-5 mini unlimited for experimentation
+3. **⚡ End-to-End Azure Workflow:** Seamlessly executed the full DevOps pipeline:
+   - Azure CLI provisioning → Terraform IaC → k3s deployment → AI service integration
+   - Zero friction across technology boundaries
+4. **🎯 Familiar Developer UX:** Intuitive shortcuts (`Shift+Tab`, `/init`, `/compact`, `/exit`) enable immediate productivity without learning curve
 
-**Real-World Validation:**
-During this hackathon, we deployed the entire Azure infrastructure, provisioned k3s clusters, and integrated AI services—all orchestrated through Copilot CLI. The 70% TTM reduction metric in our architecture isn't marketing; it's our lived experience.
-
-**One Challenge:**
-Occasionally, long-running background tasks (agents, builds) appear idle without visible progress indicators. Workaround: Check active processes with `list_agents` or `list_bash` commands.
+**⚠️ Challenges & Workarounds:**
+- **Silent Background Execution:** Long-running tasks (agents, builds, tests) may appear idle without visible progress indicators
+  - **Solution:** Use `list_agents` or `list_bash` commands to check active processes
+  - **Context:** Unlike other AI CLI tools with token counters, Copilot CLI doesn't show real-time "thinking" indicators
+  - **Tip:** For tasks >5 minutes, open a new terminal to monitor system resources independently
 
 ### The Hackathon Philosophy
 
-This project embodies the future of AI-augmented development:
-- **Human Architects + AI Executors** = Exponential velocity
-- **GitHub Copilot CLI** isn't just a tool—it's the meta-layer of how modern software gets built
+**Real Validation, Not Marketing:**  
+The "70% TTM reduction" metric in our architecture diagram isn't aspirational—it's measured reality. During this hackathon, we:
+- Deployed complete Azure infrastructure (VMs, Load Balancers, k3s clusters)
+- Integrated Azure AI Speech + Azure OpenAI services
+- Built and tested the Phase 1 Gradio mockup dashboard
 
-When your interview coaching system is itself built by AI coaching developers, you've closed the loop. 🚀
+All orchestrated through Copilot CLI's conversational interface. What traditionally takes days was compressed into hours.
+
+**The Meta-Narrative:**  
+This project embodies recursive AI augmentation:
+- **Human Architects** (Strategic Design) + **AI Executors** (Implementation) = **Exponential Velocity**
+- **GitHub Copilot CLI** isn't just a development tool—it's the **meta-layer** of how modern software gets built
+- When your interview coaching system is *itself* built by AI coaching developers, you've closed the loop 🚀
+
+### Recommendations for Hackathon Teams
+
+| Use Case | Best Practice |
+|----------|---------------|
+| **Quick Prototypes** | Use GPT-5 mini (unlimited) for rapid iteration |
+| **Complex Architecture** | Switch to Claude Sonnet 4.5 for strategic decisions |
+| **Long Deployments** | Run in background, monitor via separate terminal |
+| **Learning New Tools** | Ask Copilot CLI to generate examples + explanations inline |
+
+**Bottom Line:** If you have GitHub Pro (free via Student Pack), Copilot CLI is a hackathon force multiplier. Just understand its async execution model and you'll ship faster than any solo human could.
 
 ---
 

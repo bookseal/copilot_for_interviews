@@ -149,24 +149,19 @@ line=dict(color='#0078D4', width=3)  # Azure blue
 ## Project Structure
 
 ```
-copilot_for_interviews/
-├── mockup.py              # Main Gradio application
-├── requirements.txt       # Python dependencies
-├── README.md             # Project overview
-└── .github/
-    └── copilot-instructions.md  # Copilot development guide
+phase1_mockup/
+├── mockup.py                 # Main Gradio application
+├── MOCKUP_README.md         # This documentation
+├── mockup-screenshot.png    # Dashboard preview
+└── requirements.txt         # Python dependencies (in root)
 ```
 
-## Team
+## Technology Stack
 
-- **Jungmin Hong** - AI Platform Engineer @ Upstage
-- **Gichan Lee** - Solution Architect @ Bithabit
-
-## Powered By
-
-- ⚡ **Azure** - Cloud infrastructure
-- 🤖 **GitHub Copilot** - AI-assisted development
-- ☁️ **k3s** - Lightweight Kubernetes orchestration
+- **UI Framework:** Gradio 4.0+ with custom dark theme
+- **Visualization:** Plotly 5.0+ for interactive charts
+- **Data Processing:** NumPy for mock data generation
+- **Deployment:** Local development server (port 7860)
 
 ---
 
