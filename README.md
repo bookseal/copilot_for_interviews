@@ -60,38 +60,83 @@ graph TD
 
 ## 📅 Development Roadmap
 
-```gantt
+```mermaid
+timeline
     title Signal Copilot Evolution Roadmap
-    dateFormat  YYYY-MM-DD
-    section Phase 1: Signal Foundation
-    Real-time Audio Sampling (dB/WPM) :active, p1, 2026-03-20, 10d
-    Azure k3s Cluster Infrastructure :active, p2, 2026-03-25, 5d
-    GitHub Copilot-driven Prototyping :active, p3, 2026-03-22, 3d
-    section Phase 2: Cognitive Intelligence
-    STAR Method Logic Validator : p4, 2026-04-05, 12d
-    Sentiment & Tone Alignment : p5, 2026-04-10, 10d
-    Post-Interview Insight Report : p6, 2026-04-15, 7d
-    section Phase 3: Global Mastery
-    Singapore/Global Accent Optimization : p7, 2026-05-01, 15d
-    Haptic Bio-feedback Integration : p8, 2026-05-10, 15d
-    Enterprise HR Training Module : p9, 2026-05-20, 10d
+    section Phase 1 · Signal Foundation (Mar 2026)
+        Real-time Audio Sampling (dB/WPM)
+        Azure k3s Cluster Infrastructure
+        GitHub Copilot-driven Prototyping
+    section Phase 2 · Cognitive Intelligence (Apr 2026)
+        STAR Method Logic Validator
+        Sentiment & Tone Alignment
+        Post-Interview Insight Report
+    section Phase 3 · Global Mastery (May 2026)
+        Singapore/Global Accent Optimization
+        Haptic Bio-feedback Integration
+        Enterprise HR Training Module
 ```
 
 ---
 
 ### Phase 1: Signal Foundation (IN PROGRESS 🏗️)
 
+```mermaid
+flowchart LR
+    A[🎤 Audio Input] --> B[dB Level Monitor]
+    A --> C[WPM Counter]
+    B --> D{Signal OK?}
+    C --> D
+    D -->|Too Quiet / Too Fast| E[⚠️ Real-time Alert]
+    D -->|Optimal Range| F[✅ Signal Clear]
+    G[GitHub Copilot] -->|IaC Automation| H[k3s on Azure]
+    H --> I[Edge-ready Cluster]
+```
+
 - **Real-time Audio Telemetry:** Monitoring Decibel (dB) levels and Words Per Minute (WPM) to prevent "mumbling" or "rushing."
 - **Lightweight Orchestration:** Implementing k3s on Azure to ensure the system is portable and edge-capable.
 - **Copilot CLI Workflow:** Automating infrastructure-as-code (IaC) to minimize human error in cloud provisioning.
 
+---
+
 ### Phase 2: Cognitive Architecture
+
+```mermaid
+flowchart TD
+    A[🗣️ Interview Answer] --> B[STAR Validator]
+    B --> B1[Situation]
+    B --> B2[Task]
+    B --> B3[Action]
+    B --> B4[Result]
+    B1 & B2 & B3 & B4 --> C{Logic Check}
+    C -->|Pass| D[Tone Analyzer]
+    C -->|Fail| E[💡 STAR Feedback]
+    D --> D1[Aggressive]
+    D --> D2[Collaborative]
+    D --> D3[Neutral]
+    D1 & D2 & D3 --> F[📄 Tactical Debrief PDF]
+```
 
 - **Logic-Loom Validator:** AI-driven check to ensure answers follow the **STAR** (Situation, Task, Action, Result) framework.
 - **Cultural Tone Matching:** Analyzing speech sentiment to align with specific company cultures (e.g., Aggressive vs. Collaborative).
 - **Automated Tactical Debrief:** Detailed PDF report highlighting communication bottlenecks and improvement areas.
 
+---
+
 ### Phase 3: Global Mastery
+
+```mermaid
+flowchart LR
+    A[🌏 Global Candidate] --> B[Singapore Hub Tuning]
+    B --> C{Clarity & Efficiency Check}
+    C -->|Drift Detected| D[⌚ Haptic Alert on Smartwatch]
+    C -->|On Target| E[✅ Optimal Signal]
+    A --> F[AI Interviewer Simulator]
+    F --> F1[Persona: Aggressive]
+    F --> F2[Persona: Collaborative]
+    F --> F3[Persona: Technical]
+    F1 & F2 & F3 --> G[🏆 Multi-persona Practice Report]
+```
 
 - **Singapore Hub Tuning:** Specifically optimized for Global Big Tech standards in Singapore (Clarity & Efficiency).
 - **Wearable Feedback Loop:** Real-time haptic alerts (vibrations) on smartwatches when speech parameters drift from optimal ranges.
