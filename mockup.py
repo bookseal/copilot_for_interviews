@@ -95,12 +95,18 @@ class MockDataState:
         self.wpm_history = []
         self.time_history = []
         self.start_time = time.time()
+        self.alert_start_time = None
+        self.alert_duration = 5.0  # 5 seconds alert duration
+        self.current_alert_type = None
         
     def generate_db_level(self):
         """Generate mock dB level (40-80 dB range)"""
-        # Occasional "too quiet" alerts
-        if random.random() < 0.15:
+        # Occasional "too quiet" or "too loud" alerts
+        rand = random.random()
+        if rand < 0.15:
             return random.uniform(35, 45)  # Too quiet
+        elif rand < 0.25:
+            return random.uniform(78, 85)  # Too loud
         return random.uniform(55, 75)  # Normal range
     
     def generate_wpm(self):
@@ -122,6 +128,44 @@ class MockDataState:
             self.time_history = self.time_history[-50:]
             self.db_history = self.db_history[-50:]
             self.wpm_history = self.wpm_history[-50:]
+    
+    def should_show_alert(self, current_db, current_wpm):
+        """Check if alert should be shown (with 5-second persistence)"""
+        db_ok = 50 <= current_db <= 75
+        wpm_ok = 130 <= current_wpm <= 180
+        
+        current_time = time.time()
+        
+        # If there's an active alert, check if it's still within duration
+        if self.alert_start_time is not None:
+            elapsed = current_time - self.alert_start_time
+            if elapsed < self.alert_duration:
+                return True, self.current_alert_type
+            else:
+                # Alert expired, reset
+                self.alert_start_time = None
+                self.current_alert_type = None
+        
+        # Check for new alerts
+        if not db_ok or not wpm_ok:
+            alerts = []
+            if not db_ok:
+                if current_db < 50:
+                    alerts.append("too_quiet")
+                else:
+                    alerts.append("too_loud")
+            if not wpm_ok:
+                if current_wpm > 180:
+                    alerts.append("too_fast")
+                else:
+                    alerts.append("too_slow")
+            
+            # Start new alert
+            self.alert_start_time = current_time
+            self.current_alert_type = alerts
+            return True, alerts
+        
+        return False, []
 
 # Global state
 mock_state = MockDataState()
@@ -249,30 +293,23 @@ def update_dashboard():
     current_db = mock_state.db_history[-1] if mock_state.db_history else 60
     current_wpm = mock_state.wpm_history[-1] if mock_state.wpm_history else 150
     
-    # Determine signal status
+    # Check if alert should be shown (with 5-second persistence)
+    show_alert, alert_types = mock_state.should_show_alert(current_db, current_wpm)
+    
     db_ok = 50 <= current_db <= 75
     wpm_ok = 130 <= current_wpm <= 180
-    signal_ok = db_ok and wpm_ok
     
-    # Create status message
-    if signal_ok:
-        status_html = """
-        <div style="background-color: #2ea043; padding: 30px; border-radius: 12px; text-align: center;">
-            <h2 style="font-size: 36px; color: white; margin: 0;">✅ Signal Clear</h2>
-            <p style="font-size: 24px; color: #e0e0e0; margin-top: 10px;">Optimal communication range</p>
-        </div>
-        """
-    else:
+    # Create status message (persists for 5 seconds)
+    if show_alert and alert_types:
         alerts = []
-        if not db_ok:
-            if current_db < 50:
+        for alert_type in alert_types:
+            if alert_type == "too_quiet":
                 alerts.append("🔇 Speaking too quietly")
-            else:
+            elif alert_type == "too_loud":
                 alerts.append("📢 Speaking too loudly")
-        if not wpm_ok:
-            if current_wpm > 180:
+            elif alert_type == "too_fast":
                 alerts.append("⚡ Speaking too fast")
-            else:
+            elif alert_type == "too_slow":
                 alerts.append("🐌 Speaking too slowly")
         
         status_html = f"""
@@ -281,10 +318,17 @@ def update_dashboard():
             <p style="font-size: 24px; color: #000; margin-top: 10px;">{' | '.join(alerts)}</p>
         </div>
         """
+    else:
+        status_html = """
+        <div style="background-color: #2ea043; padding: 30px; border-radius: 12px; text-align: center;">
+            <h2 style="font-size: 36px; color: white; margin: 0;">✅ Signal Clear</h2>
+            <p style="font-size: 24px; color: #e0e0e0; margin-top: 10px;">Optimal communication range</p>
+        </div>
+        """
     
-    # Create metrics HTML
+    # Create metrics HTML (1-column layout)
     metrics_html = f"""
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;">
+    <div style="display: flex; flex-direction: column; gap: 30px; margin: 30px 0;">
         <div style="background-color: #2d2d2d; padding: 40px; border-radius: 12px; border: 3px solid {'#2ea043' if db_ok else '#ffc107'};">
             <h3 style="font-size: 28px; color: #0078D4; text-align: center;">🎚️ dB Level</h3>
             <div style="font-size: 64px; font-weight: bold; text-align: center; color: {'#2ea043' if db_ok else '#ffc107'};">
@@ -322,12 +366,11 @@ def create_interface():
         status_display = gr.HTML(value="<p style='font-size: 24px; text-align: center;'>Initializing dashboard...</p>")
         metrics_display = gr.HTML(value="")
 
-        # Charts section
+        # Charts section (1-column layout)
         gr.Markdown("## 📊 Real-time Signal Trends")
-
-        with gr.Row():
-            db_chart = gr.Plot(label="dB Level Monitoring")
-            wpm_chart = gr.Plot(label="WPM Monitoring")
+        
+        db_chart = gr.Plot(label="dB Level Monitoring")
+        wpm_chart = gr.Plot(label="WPM Monitoring")
 
         # Footer info
         gr.Markdown("""
