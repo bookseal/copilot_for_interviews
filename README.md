@@ -144,4 +144,99 @@ flowchart LR
 
 ---
 
+## 🧪 Testing & Running the Mockup
+
+### Prerequisites Check
+
+Before running the Gradio mockup, verify that all dependencies are installed:
+
+```bash
+# Check if Gradio is installed
+python3 -c "import gradio; print(f'✅ Gradio {gradio.__version__} is installed')" 2>/dev/null || echo "❌ Gradio not installed"
+
+# Check if Plotly is installed
+python3 -c "import plotly; print(f'✅ Plotly {plotly.__version__} is installed')" 2>/dev/null || echo "❌ Plotly not installed"
+
+# Check if NumPy is installed
+python3 -c "import numpy; print(f'✅ NumPy {numpy.__version__} is installed')" 2>/dev/null || echo "❌ NumPy not installed"
+```
+
+### Installation
+
+If dependencies are missing, install them:
+
+```bash
+# Install all requirements (recommended)
+pip install -r requirements.txt
+
+# Or install specific packages
+pip install gradio plotly numpy pandas
+```
+
+### Running the Mockup Dashboard
+
+```bash
+# Standard launch
+python3 mockup.py
+
+# Alternative: Using Gradio CLI
+gradio mockup.py
+```
+
+The dashboard will be available at:
+- **Local URL:** http://localhost:7860
+- **Public URL:** Gradio will generate a shareable link (visible in terminal output)
+
+### Automated Verification Script
+
+Use this one-liner to check and install:
+
+```bash
+# Check all dependencies and install if missing
+python3 -c "
+import sys
+missing = []
+try:
+    import gradio
+except ImportError:
+    missing.append('gradio')
+try:
+    import plotly
+except ImportError:
+    missing.append('plotly')
+try:
+    import numpy
+except ImportError:
+    missing.append('numpy')
+
+if missing:
+    print(f'❌ Missing: {missing}')
+    print('Run: pip install -r requirements.txt')
+    sys.exit(1)
+else:
+    print('✅ All dependencies installed!')
+"
+```
+
+### Expected Output
+
+When the mockup runs successfully, you should see:
+
+```
+Running on local URL:  http://127.0.0.1:7860
+Running on public URL: https://xxxxx.gradio.live
+
+This share link expires in 72 hours.
+```
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| `ModuleNotFoundError: No module named 'gradio'` | Run `pip install gradio` |
+| Port 7860 already in use | Kill existing process: `lsof -ti:7860 \| xargs kill -9` |
+| Gradio version mismatch | Upgrade: `pip install --upgrade gradio>=4.0.0` |
+
+---
+
 > *Powered by **Azure** | Crafted with **GitHub Copilot** | Engineered by **Jungmin & Gichan***
