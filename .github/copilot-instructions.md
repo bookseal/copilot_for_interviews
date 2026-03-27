@@ -1,120 +1,98 @@
-# Copilot Instructions for Signal Copilot
-
-This document provides key context for AI assistants working on the Signal Copilot codebase.
+# Signal Copilot for Interviews - Development Guide
 
 ## Project Overview
 
-**Signal Copilot** is an AI-augmented communication optimizer for high-stakes technical interviews. It provides real-time feedback on voice dynamics (Volume, Pace, Clarity) and logical consistency in interview responses.
+Signal Copilot is an AI-augmented communication optimizer for technical interviews. The system provides real-time feedback on voice dynamics (Volume, Pace, Clarity) through:
 
-- **Architecture**: Azure-based infrastructure orchestrated via k3s (lightweight Kubernetes)
-- **AI Services**: Azure AI Speech Services + Azure OpenAI Service
-- **Development**: Heavily automated with GitHub Copilot for IaC and code synthesis
+- **Frontend:** Audio capture and real-time feedback dashboard
+- **Backend:** k3s-orchestrated microservices on Azure
+- **AI Services:** Azure AI Speech (speech-to-text) and Azure OpenAI (logic evaluation)
 
-## Current Status
+## Architecture Pattern
 
-The project is in **Phase 1: Signal Foundation (IN PROGRESS)** with focus on:
-- Real-time audio telemetry (dB/WPM monitoring)
-- k3s cluster infrastructure on Azure
-- IaC automation for reproducible deployments
+### Multi-Phase System Design
 
-Currently minimal implementation—mostly architectural planning and infrastructure design.
+The project follows a phased approach:
 
-## Tech Stack & Principles
+1. **Phase 1 (Signal Foundation):** Real-time audio telemetry (dB/WPM), k3s cluster on Azure
+2. **Phase 2 (Cognitive Architecture):** STAR method validation, sentiment analysis, debrief reports
+3. **Phase 3 (Global Mastery):** Accent optimization, haptic feedback, multi-persona simulation
 
-### Core Technologies
-- **Infrastructure**: Azure Virtual Machines + k3s (Lightweight Kubernetes)
-- **AI/ML**: Azure AI Speech Services, Azure OpenAI Service
-- **Development Velocity**: GitHub Copilot for code synthesis, Copilot CLI for infrastructure provisioning
+### Service Separation
 
-### Key Principles
-1. **Low Latency & Edge-Ready**: Design for fast, portable deployments
-2. **IaC First**: All infrastructure defined as code; minimize manual Azure configuration
-3. **Real-time Feedback**: Prioritize sub-second signal processing for interview scenarios
-4. **Scalability**: Assume k3s will run across multiple zones (eventually)
+- **Speech-to-Text Pod:** Integrates with Azure AI Speech Services for audio processing
+- **Logic Analysis Pod:** Uses Azure OpenAI for STAR framework validation and sentiment analysis
+- **k3s Ingress:** Routes traffic through Azure Load Balancer
 
-## Phases & Roadmap
+## Infrastructure Conventions
 
-### Phase 1: Signal Foundation (Current)
-Focus: Audio telemetry, infrastructure setup
-- dB Level Monitor (prevent mumbling)
-- WPM Counter (prevent rushing)
-- k3s cluster provisioning
+### k3s on Azure
 
-### Phase 2: Cognitive Intelligence
-Focus: Interview logic validation & feedback
-- STAR Method Logic Validator (Situation, Task, Action, Result)
-- Sentiment & Tone Alignment analyzer
-- Automated Tactical Debrief PDF generation
+- Use **lightweight Kubernetes (k3s)** for orchestration, not full K8s
+- Infrastructure provisioning should be automated via IaC (Infrastructure as Code)
+- Target edge-ready deployments for low latency
+- All cluster configs should support Azure VM deployment
 
-### Phase 3: Global Mastery
-Focus: Multi-persona practice & wearable integration
-- Singapore/Global accent optimization
-- Haptic bio-feedback on smartwatches
-- AI Interviewer Simulator (Aggressive/Collaborative/Technical personas)
+### Azure Services Integration
 
-## Code Organization (When Implemented)
+- **Azure AI Speech:** For sub-second audio signal processing
+- **Azure OpenAI:** For logical consistency checks and STAR validation
+- Configure services to minimize latency for real-time feedback
 
-Expected structure (to be created as implementation begins):
-- `infrastructure/` - IaC templates (Terraform/Bicep for Azure, k3s config)
-- `backend/` - API services (Speech processing, logic validation)
-- `frontend/` - Web UI for dashboard & feedback
-- `models/` - Custom ML models & prompt templates for Azure OpenAI
-- `scripts/` - Deployment & automation scripts
+## Key Technical Requirements
 
-## Build & Test Commands
+### Real-Time Audio Processing
 
-*To be defined as implementation begins. Update this section when build/test infrastructure is created.*
+- Monitor **dB levels** to prevent mumbling (too quiet)
+- Track **WPM (Words Per Minute)** to detect rushing
+- Maintain optimal signal ranges for interview communication
+- Alert thresholds: configurable per user/context
 
-Common patterns when established:
-- `make deploy` or `terraform apply` for infrastructure
-- `npm test` / `pytest` for unit tests
-- `make k3s-up` / `make k3s-down` for local k3s clusters
+### STAR Method Validation
 
-## Key Conventions
+When implementing logic validation:
+- Parse for **Situation**, **Task**, **Action**, **Result** components
+- Flag incomplete or missing framework elements
+- Provide specific tactical feedback on structure gaps
 
-*To be established as codebase grows. Conventions to consider:*
+### Cultural Tone Matching
 
-- **IaC Naming**: Follow Azure resource naming standards (prefix-env-type convention)
-- **Container Images**: Tag with semver (e.g., `signal-api:0.1.0`)
-- **API Versioning**: Use `/api/v1/` prefix for stable endpoints
-- **Logging**: All services should emit structured logs (JSON format) to support aggregation
-- **Metrics**: Instrument with Prometheus-compatible metrics for monitoring in k3s
+Sentiment analysis should categorize responses as:
+- **Aggressive:** Direct, assertive communication style
+- **Collaborative:** Team-oriented, inclusive language
+- **Neutral:** Balanced, professional tone
 
-## Azure & k3s Deployment Notes
+Match analysis to target company culture preferences.
 
-### Prerequisites
-- Azure CLI configured with correct subscription
-- kubectl configured for k3s cluster access
-- GitHub Copilot CLI for IaC automation
+## Development Focus Areas
 
-### Typical Workflow
-1. Infrastructure changes → Define in IaC (Bicep/Terraform)
-2. Use Copilot CLI to validate & deploy infrastructure
-3. Container images built & pushed to Azure Container Registry (ACR)
-4. k3s deployments via kubectl manifests or Helm charts
-5. Monitor via Azure Monitor & k3s dashboards
+### Singapore/Global Standards
 
-## Known Challenges & Design Decisions
+- Optimize for **Clarity** and **Efficiency** metrics
+- Support global accent variations
+- Calibrate for Big Tech interview standards
 
-- **Sub-second Latency**: Azure AI Speech may introduce latency; consider edge processing or WebRTC integration
-- **WPM Calculation**: Requires accurate speech-to-text; fallback strategies needed for accent variations
-- **Kubernetes Complexity**: k3s is lightweight but still requires cluster management (RBAC, storage classes, etc.)
+### Haptic Feedback Integration (Phase 3)
 
-## Useful Resources
+When implementing wearable alerts:
+- Target smartwatch platforms for haptic feedback
+- Trigger vibrations when speech parameters drift from optimal ranges
+- Keep latency under 500ms for real-time effectiveness
 
-- [Azure AI Speech Services Docs](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/)
-- [Azure OpenAI API Reference](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)
-- [k3s Documentation](https://docs.k3s.io/)
-- STAR Method: Situation, Task, Action, Result framework for structured interview responses
+## Target Metrics
+
+- **TTM Reduction:** Aim for 70%+ reduction in Time-To-Market through AI-assisted development
+- **Audio Latency:** Sub-second processing for speech-to-text
+- **Real-time Feedback:** <100ms delay for dB/WPM alerts
+- **STAR Validation:** <2s response time for logic analysis
+
+## Development Workflow
+
+- Use **GitHub Copilot** and **Copilot CLI** for accelerated development
+- Automate Azure provisioning to minimize manual configuration errors
+- Prioritize edge-ready architecture for portability
 
 ## Team Context
 
-- **Jungmin Hong**: AI Platform Engineer (Upstage) - Infrastructure & LLM Ops lead
-- **Gichan Lee**: Solution Architect (Bithabit) - System Design & optimization
-
----
-
-**Last Updated**: Phase 1 planning phase  
-**Maintained by**: Development team  
-
-*This document evolves with the project. Update as architecture solidifies and conventions emerge.*
+**Jungmin Hong** (AI Platform Engineer @ Upstage): AI Infrastructure, Scalability, LLM Ops  
+**Gichan Lee** (Solution Architect @ Bithabit): System Design, Strategic Architecture, Optimization
