@@ -14,9 +14,14 @@ import random
 
 # Theme and styling configuration
 CUSTOM_CSS = """
-/* Dark Mode Theme */
+/* Dark Mode Theme with High Contrast */
 body, .gradio-container {
     background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* Ensure all text is visible */
+.gradio-container * {
     color: #ffffff !important;
 }
 
@@ -29,6 +34,12 @@ h1, h2, h3 {
     font-size: 32px !important;
     font-weight: 600 !important;
     margin-bottom: 20px !important;
+    color: #ffffff !important;
+}
+
+/* Markdown text visibility */
+.markdown-text, .prose {
+    color: #ffffff !important;
 }
 
 .metric-display {
@@ -38,14 +49,14 @@ h1, h2, h3 {
     padding: 30px !important;
 }
 
-/* Azure blue accent */
+/* Azure blue accent - brighter for visibility */
 .accent-azure {
-    color: #0078D4 !important;
+    color: #3399ff !important;
 }
 
-/* GitHub accent */
+/* GitHub accent - brighter for visibility */
 .accent-github {
-    color: #2ea043 !important;
+    color: #3fca5f !important;
 }
 
 /* Alert colors */
@@ -78,13 +89,23 @@ h1, h2, h3 {
     margin-bottom: 30px !important;
 }
 
-/* Card styling */
+/* Card styling with better contrast */
 .metric-card {
     background-color: #2d2d2d !important;
-    border: 2px solid #404040 !important;
+    border: 2px solid #555555 !important;
     border-radius: 12px !important;
     padding: 30px !important;
     margin: 15px 0 !important;
+}
+
+/* Label text visibility */
+label, .label {
+    color: #ffffff !important;
+}
+
+/* Plot containers */
+.plot-container {
+    background-color: #2d2d2d !important;
 }
 """
 
