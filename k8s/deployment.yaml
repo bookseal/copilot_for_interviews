@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signal-copilot
+  namespace: signal-copilot
+  labels:
+    app: signal-copilot
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: signal-copilot
+  template:
+    metadata:
+      labels:
+        app: signal-copilot
+    spec:
+      containers:
+        - name: signal-copilot
+          image: signal-copilot:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - secretRef:
+                name: signal-copilot-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
