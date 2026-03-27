@@ -25,11 +25,10 @@ This project was developed from **zero to production** during a hackathon using 
 
 ### 💡 Development Highlights
 
-**🎓 Completely Free Development Stack**
+**🎓 Microsoft Ecosystem Hackathon**
 - **GitHub Pro via Student Pack** — Free access to premium AI models (Claude Sonnet 4.5, GPT-5 mini unlimited)
-- **Azure for Students** — $100 free credit for cloud infrastructure
-- **OpenAI Free Tier** — Sufficient for prototyping and testing
-- **Total Cost: $0** ✨
+- **Azure Free Trial** — $200 free credit for cloud infrastructure and services
+- **Microsoft-First Development** — Built entirely on Microsoft's developer tools and cloud platform
 
 **⚡ End-to-End Copilot CLI Automation**
 - **Azure Account Setup → Deployment** — All Azure CLI commands generated and executed via Copilot CLI
